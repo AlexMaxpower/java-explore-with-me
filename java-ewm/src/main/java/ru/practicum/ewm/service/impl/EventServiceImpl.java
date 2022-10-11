@@ -378,4 +378,10 @@ public class EventServiceImpl implements EventService, Pager {
 
         return eventFullDtos;
     }
+
+    public List<EventShortDto> getEventsByCategoryId(Long categoryId) {
+        return repository.findByCategoryId(categoryId).stream()
+                .map(mapper::eventToEventShortDto)
+                .collect(toList());
+    }
 }

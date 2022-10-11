@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.CategoryDto;
 import ru.practicum.ewm.dto.NewCategoryDto;
+import ru.practicum.ewm.facade.UserEventFacade;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.service.CategoryService;
 
@@ -19,10 +20,14 @@ public class AdminCategoryController {
 
     private final CategoryMapper categoryMapper;
 
+    private final UserEventFacade userEventFacade;
+
     @Autowired
-    public AdminCategoryController(CategoryService categoryService, CategoryMapper categoryMapper) {
+    public AdminCategoryController(CategoryService categoryService, CategoryMapper categoryMapper,
+                                   UserEventFacade userEventFacade) {
         this.categoryService = categoryService;
         this.categoryMapper = categoryMapper;
+        this.userEventFacade = userEventFacade;
     }
 
     @PostMapping()
@@ -49,6 +54,6 @@ public class AdminCategoryController {
                 request.getRemoteAddr(),
                 request.getRequestURI(),
                 categoryId);
-        categoryService.delete(categoryId);
+        userEventFacade.deleteCategory(categoryId);
     }
 }

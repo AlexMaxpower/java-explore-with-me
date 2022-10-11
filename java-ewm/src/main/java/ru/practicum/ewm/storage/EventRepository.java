@@ -15,6 +15,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByInitiatorId(Long userId, Pageable page);
 
+    List<Event> findByCategoryId(Long categoryId);
+
     @Query("SELECT e FROM Event AS e " +
             "WHERE (e.category.id IN :categories) AND " +
             "(LOWER(e.annotation) LIKE CONCAT('%',LOWER(:text),'%') OR " +

@@ -8,6 +8,7 @@ import ru.practicum.ewm.entity.Category;
 import ru.practicum.ewm.entity.Event;
 import ru.practicum.ewm.entity.User;
 import ru.practicum.ewm.exception.ForbiddenException;
+import ru.practicum.ewm.exception.NotValidException;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.mapper.CompilationMapper;
 import ru.practicum.ewm.mapper.EventMapper;
@@ -180,6 +181,16 @@ public class UserEventFacade {
 
         EventFullDto eventFullDto = eventService.updateEventByAdmin(eventId, adminUpdateEventRequest, category);
         return eventFullDto;
+    }
+
+    public void deleteCategory(Long categoryId) {
+
+        List<EventShortDto> events = eventService.getEventsByCategoryId(categoryId);
+
+        if (events.size() != 0) {
+           throw new NotValidException("Нельзя удалить категорию с событиями!");
+        }
+        categoryService.delete(categoryId);
     }
 }
 

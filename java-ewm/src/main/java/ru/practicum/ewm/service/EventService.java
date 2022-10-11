@@ -46,4 +46,6 @@ public interface EventService {
     List<EventFullDto> getEventsForAdmin(Set<Long> users, Set<State> states, Set<Long> categories,
                                         LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                         Integer from, Integer size);
+
+    List<EventShortDto> getEventsByCategoryId(Long categoryId);
 }

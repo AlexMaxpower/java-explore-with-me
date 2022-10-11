@@ -3,7 +3,6 @@ package ru.practicum.ewm.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -58,12 +57,9 @@ public class CategoryServiceImpl implements CategoryService, Pager {
 
     @Override
     public void delete(Long categoryId) {
-        try {
-            repository.deleteById(categoryId);
-            log.info("Категория с ID={} удалена", categoryId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Category with id=" + categoryId + " was not found.");
-        }
+        CategoryDto categoryDto = getCategoryById(categoryId);
+        repository.deleteById(categoryId);
+        log.info("Категория с ID={} удалена", categoryId);
     }
 
     @Override
