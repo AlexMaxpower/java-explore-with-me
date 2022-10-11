@@ -1,8 +1,8 @@
 version: '3.8'
 services:
-  stats:
-    build: stats
-    container_name: stats
+  stats-server:
+    build: java-stats
+    container_name: stats-server
     ports:
       - "9090:9090"
     depends_on:
@@ -11,14 +11,16 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats-db
 
   ewm-service:
-    build: ewm-service
+    build: java-ewm
     container_name: ewm-service
     ports:
       - "8080:8080"
     depends_on:
       - ewm-db
+      - stats-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-db
+      - FEIGN_URL=http://stats-server:9090
 
   stats-db:
     image: postgres:13.7-alpine
