@@ -33,7 +33,7 @@ API основного сервиса разделено на три части.
 - [API основного сервиса](https://github.com/AlexMaxpower/java-explore-with-me/blob/main/ewm-main-service-spec.json)
 - [API сервиса по сбору статистики](https://github.com/AlexMaxpower/java-explore-with-me/blob/main/ewm-stats-service-spec.json)
 
-Для просмотра спецификаций используйте [редактор Swagger] (https://editor-next.swagger.io/).
+Для просмотра спецификаций используйте [редактор Swagger](https://editor-next.swagger.io/).
 
 # Используемые технологии
 
