@@ -1,9 +1,8 @@
 package ru.practicum.ewm.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.EventFullDto;
 import ru.practicum.ewm.facade.UserEventFacade;
@@ -16,6 +15,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Set;
 
@@ -23,6 +23,9 @@ import java.util.Set;
 @RestController
 @RequestMapping(path = "/admin/events")
 public class AdminEventController {
+
+    @Value("${format.pattern.datetime}")
+    private String dateTimeFormat;
     private final EventService eventService;
     private final UserEventFacade userEventFacade;
 
@@ -66,19 +69,15 @@ public class AdminEventController {
     public Collection<EventFullDto> getEvents(@RequestParam(required = false) Set<Long> users,
                                               @RequestParam(required = false) Set<State> states,
                                               @RequestParam(required = false) Set<Long> categories,
-                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE,
-                                                      pattern = "yyyy-MM-dd HH:mm:ss")
-                                              @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                              @RequestParam(required = false) LocalDateTime rangeStart,
-                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE,
-                                                      pattern = "yyyy-MM-dd HH:mm:ss")
-                                              @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                              @RequestParam(required = false) LocalDateTime rangeEnd,
+                                              @RequestParam(required = false) String rangeStart,
+                                              @RequestParam(required = false) String rangeEnd,
                                               @Valid @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                               @Valid @Positive @RequestParam(defaultValue = "10") Integer size,
                                               HttpServletRequest request) {
         log.info("{}: Запрос к эндпоинту '{}' на получение списка событий",
                 request.getRemoteAddr(), request.getRequestURI());
-        return eventService.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
+        return eventService.getEventsForAdmin(users, states, categories,
+                LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat)),
+                LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat)), from, size);
     }
 }

@@ -1,12 +1,15 @@
 package ru.practicum.ewm.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import ru.practicum.ewm.other.Location;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode
+@AllArgsConstructor
 @Builder
 public class EventCreateDto {
 

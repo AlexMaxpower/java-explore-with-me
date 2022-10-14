@@ -1,9 +1,7 @@
 package ru.practicum.ewm.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.other.Location;
 
 import javax.validation.constraints.Size;
@@ -19,8 +17,6 @@ public class NewEventDto {
     private Long categoryId;
     @Size(min = 20, max = 7000)
     private String description;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     private Location location;
     private boolean paid = false;

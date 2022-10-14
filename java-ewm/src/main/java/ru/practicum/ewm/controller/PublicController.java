@@ -1,9 +1,8 @@
 package ru.practicum.ewm.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.CategoryDto;
 import ru.practicum.ewm.dto.CompilationDto;
@@ -20,6 +19,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Set;
 
@@ -28,6 +28,8 @@ import java.util.Set;
 @RestController
 public class PublicController {
 
+    @Value("${format.pattern.datetime}")
+    private String dateTimeFormat;
     private final CategoryService categoryService;
     private final EventService eventService;
     private final CompilationService compilationService;
@@ -76,14 +78,8 @@ public class PublicController {
     public Collection<EventShortDto> getEvents(@RequestParam(required = false, defaultValue = "") String text,
                                                @RequestParam(required = false) Set<Long> categories,
                                                @RequestParam(required = false) Boolean paid,
-                                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE,
-                                                       pattern = "yyyy-MM-dd HH:mm:ss")
-                                               @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                               @RequestParam(required = false) LocalDateTime rangeStart,
-                                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE,
-                                                       pattern = "yyyy-MM-dd HH:mm:ss")
-                                               @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                               @RequestParam(required = false) LocalDateTime rangeEnd,
+                                               @RequestParam(required = false) String rangeStart,
+                                               @RequestParam(required = false) String rangeEnd,
                                                @RequestParam(required = false) Boolean onlyAvailable,
                                                @RequestParam(required = false) EventSort sort,
                                                @Valid @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
@@ -93,8 +89,9 @@ public class PublicController {
                 request.getRemoteAddr(), request.getRequestURI());
         statsService.setHits(request.getRequestURI(), request.getRemoteAddr());
         return eventService.getEventsForPublic(text, categories, paid,
-                rangeStart, rangeEnd, onlyAvailable,
-                sort, from, size);
+                LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat)),
+                LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat)),
+                onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/compilations/{compId}")
