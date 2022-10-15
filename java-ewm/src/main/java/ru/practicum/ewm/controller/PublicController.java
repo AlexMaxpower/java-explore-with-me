@@ -4,15 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.dto.CategoryDto;
-import ru.practicum.ewm.dto.CompilationDto;
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.EventShortDto;
+import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.other.EventSort;
-import ru.practicum.ewm.service.CategoryService;
-import ru.practicum.ewm.service.CompilationService;
-import ru.practicum.ewm.service.EventService;
-import ru.practicum.ewm.service.StatsService;
+import ru.practicum.ewm.service.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -35,13 +29,17 @@ public class PublicController {
     private final CompilationService compilationService;
     private final StatsService statsService;
 
+    private final CommentService commentService;
+
     @Autowired
     public PublicController(CategoryService categoryService, EventService eventService,
-                            CompilationService compilationService, StatsService statsService) {
+                            CompilationService compilationService, StatsService statsService,
+                            CommentService commentService) {
         this.categoryService = categoryService;
         this.eventService = eventService;
         this.compilationService = compilationService;
         this.statsService = statsService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/categories/{categoryId}")
@@ -114,5 +112,27 @@ public class PublicController {
                 from,
                 size);
         return compilationService.getCompilations(from, size, pinned);
+    }
+
+    @GetMapping(path = "/comments")
+    public Collection<CommentDto> getComments(@RequestParam(required = false, defaultValue = "") String text,
+                                              @RequestParam(required = false) Set<Long> events,
+                                              @RequestParam(required = false) String rangeStart,
+                                              @RequestParam(required = false) String rangeEnd,
+                                              @Valid @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                              @Valid @Positive @RequestParam(defaultValue = "10") Integer size,
+                                              HttpServletRequest request) {
+        log.info("{}: Запрос к эндпоинту '{}' на получение списка комментариев",
+                request.getRemoteAddr(), request.getRequestURI());
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        if (rangeStart != null) {
+            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat));
+        }
+        if (rangeEnd != null) {
+            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat));
+        }
+
+        return commentService.getCommentsForPublic(text, events, start, end, from, size);
     }
 }
