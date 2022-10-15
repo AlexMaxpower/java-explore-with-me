@@ -1,0 +1,8 @@
+
+${AnsiColor.BRIGHT_MAGENTA}███████╗░██╗░░░░░░░██╗███╗░░░███╗   ${AnsiColor.BRIGHT_CYAN}░██████╗███████╗██████╗░██╗░░░██╗██╗░█████╗░███████╗
+${AnsiColor.BRIGHT_MAGENTA}██╔════╝░██║░░██╗░░██║████╗░████║   ${AnsiColor.BRIGHT_CYAN}██╔════╝██╔════╝██╔══██╗██║░░░██║██║██╔══██╗██╔════╝
+${AnsiColor.BRIGHT_MAGENTA}█████╗░░░╚██╗████╗██╔╝██╔████╔██║   ${AnsiColor.BRIGHT_CYAN}╚█████╗░█████╗░░██████╔╝╚██╗░██╔╝██║██║░░╚═╝█████╗░░
+${AnsiColor.BRIGHT_MAGENTA}██╔══╝░░░░████╔═████║░██║╚██╔╝██║   ${AnsiColor.BRIGHT_CYAN}░╚═══██╗██╔══╝░░██╔══██╗░╚████╔╝░██║██║░░██╗██╔══╝░░
+${AnsiColor.BRIGHT_MAGENTA}███████╗░░╚██╔╝░╚██╔╝░██║░╚═╝░██║   ${AnsiColor.BRIGHT_CYAN}██████╔╝███████╗██║░░██║░░╚██╔╝░░██║╚█████╔╝███████╗
+${AnsiColor.BRIGHT_MAGENTA}╚══════╝░░░╚═╝░░░╚═╝░░╚═╝░░░░░╚═╝   ${AnsiColor.BRIGHT_CYAN}╚═════╝░╚══════╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░╚════╝░╚══════╝
+                                                           ${AnsiColor.DEFAULT}Powered by Spring Boot ${spring-boot.version}
