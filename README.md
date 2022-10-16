@@ -1,5 +1,4 @@
 # Приложение Explore With Me (дипломный проект)
-https://github.com/AlexMaxpower/java-explore-with-me/pull/1
 
 Explore With Me — приложение, которое дает возможность делиться информацией об интересных событиях и помогает найти компанию для участия в них.
 
