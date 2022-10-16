@@ -26,6 +26,9 @@ import java.time.LocalDateTime;
 @FilterDef(name = "statusComFilter", parameters = @ParamDef(name = "status", type = "string"))
 @Filter(name = "statusComFilter", condition = "status =:status")
 
+@FilterDef(name = "eventsComFilter", parameters = @ParamDef(name = "eventIds", type = "java.lang.Long"))
+@Filter(name = "eventsComFilter", condition = "event_id in (:eventIds)")
+
 
 @Entity
 @Table(name = "comments")

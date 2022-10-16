@@ -151,9 +151,6 @@ public class CommentServiceImpl implements CommentService, Pager {
     public List<CommentDto> getCommentsForPublic(String text, Set<Long> events, LocalDateTime start,
                                                  LocalDateTime end, Integer from, Integer size) {
 
-        start = (start != null) ? start : LocalDateTime.now().minusYears(300);
-        end = (end != null) ? end : LocalDateTime.now().plusYears(300);
-
         if (start.isAfter(end)) {
             throw new NotValidException("Дата и время окончаний комментариев не может быть" +
                     " раньше даты начала комментариев!");
@@ -170,12 +167,18 @@ public class CommentServiceImpl implements CommentService, Pager {
         dateFilter.setParameter("rangeEnd", end);
 
         Pageable page = getPage(from, size, "created", Sort.Direction.ASC);
-        List<Comment> comments;
+
+        Filter eventFilter;
 
         if (events != null) {
-            comments = repository.findByTextAndEventsIds(text, events, page);
-        } else {
-            comments = repository.findByText(text, page);
+            eventFilter = session.enableFilter("eventsComFilter");
+            eventFilter.setParameterList("eventIds", events);
+        }
+
+        List<Comment> comments = repository.findByText(text, page);
+
+        if (events != null) {
+            session.disableFilter("eventsComFilter");
         }
 
         // выключаем фильтры
@@ -191,9 +194,6 @@ public class CommentServiceImpl implements CommentService, Pager {
     @Override
     public List<CommentDto> getCommentsForAdmin(String text, Set<Long> events, Status status,
                                                 LocalDateTime start, LocalDateTime end, Integer from, Integer size) {
-
-        start = (start != null) ? start : LocalDateTime.now().minusYears(300);
-        end = (end != null) ? end : LocalDateTime.now().plusYears(300);
 
         if (start.isAfter(end)) {
             throw new NotValidException("Дата и время окончаний комментариев не может быть" +
@@ -213,15 +213,21 @@ public class CommentServiceImpl implements CommentService, Pager {
         }
 
         Pageable page = getPage(from, size, "created", Sort.Direction.ASC);
-        List<Comment> comments;
+
+        Filter eventFilter;
 
         if (events != null) {
-            comments = repository.findByTextAndEventsIds(text, events, page);
-        } else {
-            comments = repository.findByText(text, page);
+            eventFilter = session.enableFilter("eventsComFilter");
+            eventFilter.setParameterList("eventIds", events);
         }
 
+        List<Comment> comments = repository.findByText(text, page);
+
         // выключаем фильтры
+        if (events != null) {
+            session.disableFilter("eventsComFilter");
+        }
+
         session.disableFilter("dateComFilter");
 
         if (status != null) {

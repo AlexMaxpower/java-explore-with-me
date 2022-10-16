@@ -78,7 +78,7 @@ public class PublicController {
                                                @RequestParam(required = false) Boolean paid,
                                                @RequestParam(required = false) String rangeStart,
                                                @RequestParam(required = false) String rangeEnd,
-                                               @RequestParam(required = false) Boolean onlyAvailable,
+                                               @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                                @RequestParam(required = false) EventSort sort,
                                                @Valid @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                @Valid @Positive @RequestParam(defaultValue = "10") Integer size,
@@ -86,9 +86,14 @@ public class PublicController {
         log.info("{}: Запрос к эндпоинту '{}' на получение списка событий",
                 request.getRemoteAddr(), request.getRequestURI());
         statsService.setHits(request.getRequestURI(), request.getRemoteAddr());
-        return eventService.getEventsForPublic(text, categories, paid,
-                LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat)),
-                LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat)),
+
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now();
+
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().plusYears(300);
+
+        return eventService.getEventsForPublic(text, categories, paid, start, end,
                 onlyAvailable, sort, from, size);
     }
 
@@ -124,14 +129,12 @@ public class PublicController {
                                               HttpServletRequest request) {
         log.info("{}: Запрос к эндпоинту '{}' на получение списка комментариев",
                 request.getRemoteAddr(), request.getRequestURI());
-        LocalDateTime start = null;
-        LocalDateTime end = null;
-        if (rangeStart != null) {
-            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat));
-        }
-        if (rangeEnd != null) {
-            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat));
-        }
+
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().minusYears(300);
+
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().plusYears(300);
 
         return commentService.getCommentsForPublic(text, events, start, end, from, size);
     }

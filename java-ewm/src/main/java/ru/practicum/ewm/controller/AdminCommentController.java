@@ -69,14 +69,12 @@ public class AdminCommentController {
                                               HttpServletRequest request) {
         log.info("{}: Запрос к эндпоинту '{}' на получение списка комментариев",
                 request.getRemoteAddr(), request.getRequestURI());
-        LocalDateTime start = null;
-        LocalDateTime end = null;
-        if (rangeStart != null) {
-            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat));
-        }
-        if (rangeEnd != null) {
-            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat));
-        }
+
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().minusYears(300);
+
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().plusYears(300);
 
         return commentService.getCommentsForAdmin(text, events, status, start, end, from, size);
     }
