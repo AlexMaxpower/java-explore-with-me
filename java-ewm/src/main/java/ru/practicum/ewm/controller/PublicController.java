@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.other.EventSort;
+import ru.practicum.ewm.other.Status;
 import ru.practicum.ewm.service.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -131,11 +132,11 @@ public class PublicController {
                 request.getRemoteAddr(), request.getRequestURI());
 
         LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
-                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().minusYears(300);
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : null;
 
         LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
-                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().plusYears(300);
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : null;
 
-        return commentService.getCommentsForPublic(text, events, start, end, from, size);
+        return commentService.getComments(text, events, Status.CONFIRMED, start, end, from, size);
     }
 }

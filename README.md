@@ -1,5 +1,4 @@
 # Приложение Explore With Me (дипломный проект)
-https://github.com/AlexMaxpower/java-explore-with-me/pull/1
 
 Explore With Me — приложение, которое дает возможность делиться информацией об интересных событиях и помогает найти компанию для участия в них.
 
@@ -71,14 +70,14 @@ API основного сервиса разделено на три части.
 
 ### Private: Комментарии
 <details>
-  <summary> PUT /users/{userId}/comments <br />
+  <summary> POST /users/{userId}/comments <br />
      Размещение комментария пользователем
 </summary>
 Пример запроса:
 
 ```json
 {
-  "text": "Новый комментарий длинной больше 20 символов",
+  "text": "Новый комментарий на событие",
   "event": 1
 }
 ```
@@ -86,7 +85,7 @@ API основного сервиса разделено на три части.
 ```json
 {
 "id": 1,
-"text": "Новый комментарий длинной больше 20 символов",
+"text": "Новый комментарий на событие",
 "created": "2022-10-15 07:56:45",
 "status": "PENDING",
 "event": 1,
@@ -95,16 +94,23 @@ API основного сервиса разделено на три части.
 ```
 </details>  
 <details>
-  <summary> PATCH /users/{userId}/comments/{commentId}/cancel <br />
-     Снятие с публикации комментария
+  <summary> PATCH /users/{userId}/comments/{commentId} <br />
+     Снятие пользователем комментария с публикации
 </summary>
+Пример запроса:
+
+```json
+{
+"status": "CANCELED"
+}
+```
 
 Пример ответа:
 
 ```json
 {
  "id": 1,
- "text": "Новый комментарий длинной больше 20 символов",
+ "text": "Новый комментарий на событие",
  "created": "2022-10-15 07:51:36",
  "status": "CANCELED",
  "event": 1,
@@ -113,15 +119,14 @@ API основного сервиса разделено на три части.
 ```
 </details> 
 <details>
-  <summary> PATCH /users/{userId}/comments <br />
+  <summary> PATCH /users/{userId}/comments/{commentId} <br />
      Редактирование комментария
 </summary>
 Пример запроса:
 
 ```json
 {
- "id": 1,
- "text": "Отредактированный комментарий длинной больше 20 символов"
+ "text": "Отредактированный комментарий"
 }
 ```
 </details> 
@@ -133,49 +138,44 @@ API основного сервиса разделено на три части.
 
 ### Admin: Комментарии
 <details>
-  <summary> PATCH /admin/comments/{commentId}/publish <br />
-     Одобрение комментария и публикация
+  <summary> PATCH /admin/comments/{commentId}/ <br />
+     Публикация или отклонение комментария администратором
 </summary>
+Пример запроса:
 
+```json
+{
+  "status": "CONFIRMED"
+}
+```
+Пример запроса:
+
+```json
+{
+  "status": "REJECTED"
+}
+```
 Пример ответа:
 ```json
 {
 "id": 1,
-"text": "Новый комментарий длинной больше 20 символов",
+"text": "Новый комментарий на событие",
 "created": "2022-10-15 08:56:36",
 "status": "CONFIRMED",
 "event": 1,
 "commentator": 1
 }
 ```
-</details> 
-<details>
-  <summary> PATCH /admin/comments/{commentId}/reject <br />
-     Отклонение комментария и снятие с публикации
-</summary>
-
-Пример ответа:
-```json
-{
-"id": 1,
-"text": "Новый комментарий длинной больше 20 символов",
-"created": "2022-10-15 09:12:52",
-"status": "REJECTED",
-"event": 1,
-"commentator": 1
-}
-```
 </details>
 <details>
-  <summary> PATCH /admin/comments <br />
+  <summary> PATCH /admin/comments/{commentId} <br />
      Редактирование комментария
 </summary>
 Пример запроса:
 
 ```json
 {
- "id": 1,
- "text": "Отредактированный комментарий длинной больше 20 символов"
+ "text": "Отредактированный администратором комментарий"
 }
 ```
 </details>

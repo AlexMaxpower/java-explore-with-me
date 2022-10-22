@@ -50,83 +50,58 @@ public class CommentServiceImpl implements CommentService, Pager {
         commentDto.setStatus(Status.PENDING);
         log.info("Создаем новый комментарий {}", commentDto);
         Comment comment = mapper.commentDtoToComment(commentDto);
-        if (comment.getEvent().getState().equals(State.PUBLISHED)) {
-            comment = repository.save(mapper.commentDtoToComment(commentDto));
-            log.info("Комментарий создан {}", comment);
-        } else {
+        if (!comment.getEvent().getState().equals(State.PUBLISHED)) {
             throw new ForbiddenException("Разместить комментарий можно только к опубликованному событию!");
+
         }
+        comment = repository.save(mapper.commentDtoToComment(commentDto));
+        log.info("Комментарий создан {}", comment);
         return mapper.commentToCommentDto(comment);
     }
 
     @Override
-    public CommentDto cancelComment(Long userId, Long commentId) {
+    public CommentDto updateComment(Long userId, Long commentId, CommentDto commentDto) {
         Comment comment = getComment(commentId);
         log.info("Получен комментарий {}", comment);
 
-        if (userId.equals(comment.getCommentator().getId())) {
-            comment.setStatus(Status.CANCELED);
-            comment = repository.save(comment);
-            log.info("Комментарий снят с публикации {}", comment);
-        } else {
-            throw new ForbiddenException("Отменить публикацию комментария может только сам комментатор!");
-        }
-        return mapper.commentToCommentDto(comment);
-    }
-
-    @Override
-    public CommentDto updateComment(Long userId, CommentDto commentDto) {
-        Comment comment = getComment(commentDto.getId());
-        log.info("Получен комментарий {}", comment);
-
-        if (userId.equals(comment.getCommentator().getId())) {
-            comment.setText(commentDto.getText());
-            comment.setCreated(LocalDateTime.now());
-            comment.setStatus(Status.PENDING);
-            comment = repository.save(comment);
-            log.info("Комментарий отредактирован {}", comment);
-        } else {
+        if (!userId.equals(comment.getCommentator().getId())) {
             throw new ForbiddenException("Редактировать комментарий может только сам комментатор!");
         }
+
+        if (commentDto.getStatus() != null) {
+            comment.setStatus(commentDto.getStatus());
+        }
+
+        if (commentDto.getText() != null) {
+            comment.setText(commentDto.getText());
+            comment.setStatus(Status.PENDING);
+        }
+
+        isValid(comment);
+        comment = repository.save(comment);
+        log.info("Комментарий отредактирован {}", comment);
+
         return mapper.commentToCommentDto(comment);
     }
 
     @Override
-    public CommentDto updateCommentByAdmin(CommentDto commentDto) {
-        Comment comment = getComment(commentDto.getId());
+    public CommentDto updateCommentByAdmin(Long commentId, CommentDto commentDto) {
+        Comment comment = getComment(commentId);
         log.info("Получен комментарий {}", comment);
 
-        comment.setText(commentDto.getText());
-        comment.setStatus(Status.CONFIRMED);
+        if (commentDto.getStatus() != null) {
+            comment.setStatus(commentDto.getStatus());
+        }
+
+        if (commentDto.getText() != null) {
+            comment.setText(commentDto.getText());
+            comment.setStatus(Status.CONFIRMED);
+        }
+
+        isValid(comment);
         comment = repository.save(comment);
         log.info("Комментарий отредактирован администратором {}", comment);
 
-        return mapper.commentToCommentDto(comment);
-    }
-
-
-    @Override
-    public CommentDto publishComment(Long commentId) {
-        Comment comment = getComment(commentId);
-        log.info("Получен комментарий {}", comment);
-
-        if (Status.PENDING.equals(comment.getStatus())) {
-            comment.setStatus(Status.CONFIRMED);
-        } else {
-            throw new NotValidException("Only pending comment can be changed");
-        }
-        comment = repository.save(comment);
-        log.info("Комментарий одобрен и опубликован {}", comment);
-        return mapper.commentToCommentDto(comment);
-    }
-
-    @Override
-    public CommentDto rejectComment(Long commentId) {
-        Comment comment = getComment(commentId);
-        log.info("Получен комментарий {}", comment);
-        comment.setStatus(Status.REJECTED);
-        comment = repository.save(comment);
-        log.info("Комментарий отклонен и снят с публикации {}", comment);
         return mapper.commentToCommentDto(comment);
     }
 
@@ -148,64 +123,34 @@ public class CommentServiceImpl implements CommentService, Pager {
     }
 
     @Override
-    public List<CommentDto> getCommentsForPublic(String text, Set<Long> events, LocalDateTime start,
-                                                 LocalDateTime end, Integer from, Integer size) {
-
-        if (start.isAfter(end)) {
-            throw new NotValidException("Дата и время окончаний комментариев не может быть" +
-                    " раньше даты начала комментариев!");
-        }
+    public List<CommentDto> getComments(String text, Set<Long> events, Status status,
+                                        LocalDateTime start, LocalDateTime end, Integer from, Integer size) {
 
         Session session = entityManager.unwrap(Session.class);
 
-        // в выдаче должны быть только опубликованные комментарии
-        session.enableFilter("statusComFilter").setParameter("status", Status.CONFIRMED.toString());
+        Filter dateFilter = null;
 
-        // включаем фильтр по датам
-        Filter dateFilter = session.enableFilter("dateComFilter");
-        dateFilter.setParameter("rangeStart", start);
-        dateFilter.setParameter("rangeEnd", end);
+        if ((start != null) && (end != null)) {
+            if (start.isAfter(end)) {
+                throw new NotValidException("Дата и время окончаний комментариев не может быть" +
+                        " раньше даты начала комментариев!");
+            }
 
-        Pageable page = getPage(from, size, "created", Sort.Direction.ASC);
-
-        Filter eventFilter;
-
-        if (events != null) {
-            eventFilter = session.enableFilter("eventsComFilter");
-            eventFilter.setParameterList("eventIds", events);
+            // включаем фильтр по датам начала и конца
+            dateFilter = session.enableFilter("dateAllComFilter");
+            dateFilter.setParameter("rangeStart", start);
+            dateFilter.setParameter("rangeEnd", end);
         }
 
-        List<Comment> comments = repository.findByText(text, page);
-
-        if (events != null) {
-            session.disableFilter("eventsComFilter");
+        if ((start != null) && (end == null)) {
+            dateFilter = session.enableFilter("dateStartComFilter");
+            dateFilter.setParameter("rangeStart", start);
         }
 
-        // выключаем фильтры
-
-        session.disableFilter("dateComFilter");
-        session.disableFilter("statusComFilter");
-
-        return comments.stream()
-                .map(mapper::commentToCommentDto)
-                .collect(toList());
-    }
-
-    @Override
-    public List<CommentDto> getCommentsForAdmin(String text, Set<Long> events, Status status,
-                                                LocalDateTime start, LocalDateTime end, Integer from, Integer size) {
-
-        if (start.isAfter(end)) {
-            throw new NotValidException("Дата и время окончаний комментариев не может быть" +
-                    " раньше даты начала комментариев!");
+        if ((start == null) && (end != null)) {
+            dateFilter = session.enableFilter("dateEndComFilter");
+            dateFilter.setParameter("rangeEnd", end);
         }
-
-        Session session = entityManager.unwrap(Session.class);
-
-        // включаем фильтр по датам
-        Filter dateFilter = session.enableFilter("dateComFilter");
-        dateFilter.setParameter("rangeStart", start);
-        dateFilter.setParameter("rangeEnd", end);
 
         if (status != null) {
             // включаем фильтр по статусу комментария
@@ -228,7 +173,9 @@ public class CommentServiceImpl implements CommentService, Pager {
             session.disableFilter("eventsComFilter");
         }
 
-        session.disableFilter("dateComFilter");
+        if (dateFilter != null) {
+            session.disableFilter(dateFilter.getName());
+        }
 
         if (status != null) {
             session.disableFilter("statusComFilter");
@@ -243,5 +190,15 @@ public class CommentServiceImpl implements CommentService, Pager {
     public Comment getComment(Long commentId) {
         return repository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment with id=" + commentId + " not found."));
+    }
+
+    private Boolean isValid(Comment comment) {
+        if (comment.getText() == null) {
+            throw new NotValidException("Должен быть комментарий!");
+        }
+        if ((comment.getText().length() < 3) || (comment.getText().length() > 2000)) {
+            throw new NotValidException("Длина комментария должна быть больше 3 символов, но меньше 2000 символов");
+        }
+        return true;
     }
 }

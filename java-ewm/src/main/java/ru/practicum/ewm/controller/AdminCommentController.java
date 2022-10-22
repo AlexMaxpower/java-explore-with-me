@@ -32,30 +32,12 @@ public class AdminCommentController {
         this.commentService = commentService;
     }
 
-    @PatchMapping("/{commentId}/publish")
-    public CommentDto publish(@PathVariable Long commentId, HttpServletRequest request) {
-        log.info("{}: Запрос к эндпоинту '{}' на публикацию комментария с ID={}",
-                request.getRemoteAddr(),
-                request.getRequestURI(),
-                commentId);
-        return commentService.publishComment(commentId);
-    }
-
-    @PatchMapping("/{commentId}/reject")
-    public CommentDto reject(@PathVariable Long commentId, HttpServletRequest request) {
-        log.info("{}: Запрос к эндпоинту '{}' на отклонение комментария с ID={}",
-                request.getRemoteAddr(),
-                request.getRequestURI(),
-                commentId);
-        return commentService.rejectComment(commentId);
-    }
-
-    @PatchMapping
-    public CommentDto update(@Valid @RequestBody CommentDto commentDto,
+    @PatchMapping("/{commentId}")
+    public CommentDto update(@RequestBody CommentDto commentDto, @PathVariable Long commentId,
                              HttpServletRequest request) {
-        log.info("{}: Запрос к эндпоинту '{}' на редактирование комментария {}",
-                request.getRemoteAddr(), request.getRequestURI(), commentDto);
-        return commentService.updateCommentByAdmin(commentDto);
+        log.info("{}: Запрос к эндпоинту '{}' на редактирование комментария с ID={}: {}",
+                request.getRemoteAddr(), request.getRequestURI(), commentId, commentDto);
+        return commentService.updateCommentByAdmin(commentId, commentDto);
     }
 
     @GetMapping
@@ -71,12 +53,12 @@ public class AdminCommentController {
                 request.getRemoteAddr(), request.getRequestURI());
 
         LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
-                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().minusYears(300);
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : null;
 
         LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
-                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().plusYears(300);
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : null;
 
-        return commentService.getCommentsForAdmin(text, events, status, start, end, from, size);
+        return commentService.getComments(text, events, status, start, end, from, size);
     }
 
 }

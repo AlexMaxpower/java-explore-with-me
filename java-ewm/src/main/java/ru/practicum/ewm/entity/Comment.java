@@ -17,11 +17,19 @@ import java.time.LocalDateTime;
 @Builder
 
 
-@FilterDef(name = "dateComFilter",
+@FilterDef(name = "dateAllComFilter",
         parameters = {
                 @ParamDef(name = "rangeStart", type = "java.time.LocalDateTime"),
                 @ParamDef(name = "rangeEnd", type = "java.time.LocalDateTime")})
-@Filter(name = "dateComFilter", condition = "created >= :rangeStart and created <= :rangeEnd")
+@Filter(name = "dateAllComFilter", condition = "created >= :rangeStart and created <= :rangeEnd")
+
+@FilterDef(name = "dateStartComFilter",
+        parameters = @ParamDef(name = "rangeStart", type = "java.time.LocalDateTime"))
+@Filter(name = "dateStartComFilter", condition = "created >= :rangeStart")
+
+@FilterDef(name = "dateEndComFilter",
+        parameters = @ParamDef(name = "rangeEnd", type = "java.time.LocalDateTime"))
+@Filter(name = "dateEndComFilter", condition = "created <= :rangeEnd")
 
 @FilterDef(name = "statusComFilter", parameters = @ParamDef(name = "status", type = "string"))
 @Filter(name = "statusComFilter", condition = "status =:status")

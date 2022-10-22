@@ -32,19 +32,12 @@ public class PrivateCommentController {
         return commentService.createComment(userId, commentDto);
     }
 
-    @PatchMapping("/{userId}/comments/{commentId}/cancel")
-    public CommentDto cancel(@PathVariable Long userId, @PathVariable Long commentId, HttpServletRequest request) {
-        log.info("{}: Запрос к эндпоинту '{}' на отмену комментария с ID={} от пользователя с ID={}",
-                request.getRemoteAddr(), request.getRequestURI(), commentId, userId);
-        return commentService.cancelComment(userId, commentId);
-    }
-
-    @PatchMapping("/{userId}/comments")
-    public CommentDto update(@Valid @RequestBody CommentDto commentDto, @PathVariable Long userId,
-                             HttpServletRequest request) {
-        log.info("{}: Запрос к эндпоинту '{}' на редактирование комментария {} от пользователя с ID={}",
-                request.getRemoteAddr(), request.getRequestURI(), commentDto, userId);
-        return commentService.updateComment(userId, commentDto);
+    @PatchMapping("/{userId}/comments/{commentId}")
+    public CommentDto update(@RequestBody CommentDto commentDto, @PathVariable Long userId,
+                             @PathVariable Long commentId, HttpServletRequest request) {
+        log.info("{}: Запрос к эндпоинту '{}' на редактирование комментария с ID={}: {} от пользователя с ID={}",
+                request.getRemoteAddr(), request.getRequestURI(), commentId, commentDto, userId);
+        return commentService.updateComment(userId, commentId, commentDto);
     }
 
     @GetMapping("/{userId}/comments")
