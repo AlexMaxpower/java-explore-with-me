@@ -4,15 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.dto.CategoryDto;
-import ru.practicum.ewm.dto.CompilationDto;
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.EventShortDto;
+import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.other.EventSort;
-import ru.practicum.ewm.service.CategoryService;
-import ru.practicum.ewm.service.CompilationService;
-import ru.practicum.ewm.service.EventService;
-import ru.practicum.ewm.service.StatsService;
+import ru.practicum.ewm.other.Status;
+import ru.practicum.ewm.service.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -35,13 +30,17 @@ public class PublicController {
     private final CompilationService compilationService;
     private final StatsService statsService;
 
+    private final CommentService commentService;
+
     @Autowired
     public PublicController(CategoryService categoryService, EventService eventService,
-                            CompilationService compilationService, StatsService statsService) {
+                            CompilationService compilationService, StatsService statsService,
+                            CommentService commentService) {
         this.categoryService = categoryService;
         this.eventService = eventService;
         this.compilationService = compilationService;
         this.statsService = statsService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/categories/{categoryId}")
@@ -80,7 +79,7 @@ public class PublicController {
                                                @RequestParam(required = false) Boolean paid,
                                                @RequestParam(required = false) String rangeStart,
                                                @RequestParam(required = false) String rangeEnd,
-                                               @RequestParam(required = false) Boolean onlyAvailable,
+                                               @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                                @RequestParam(required = false) EventSort sort,
                                                @Valid @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                @Valid @Positive @RequestParam(defaultValue = "10") Integer size,
@@ -88,9 +87,14 @@ public class PublicController {
         log.info("{}: Запрос к эндпоинту '{}' на получение списка событий",
                 request.getRemoteAddr(), request.getRequestURI());
         statsService.setHits(request.getRequestURI(), request.getRemoteAddr());
-        return eventService.getEventsForPublic(text, categories, paid,
-                LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat)),
-                LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat)),
+
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now();
+
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().plusYears(300);
+
+        return eventService.getEventsForPublic(text, categories, paid, start, end,
                 onlyAvailable, sort, from, size);
     }
 
@@ -114,5 +118,25 @@ public class PublicController {
                 from,
                 size);
         return compilationService.getCompilations(from, size, pinned);
+    }
+
+    @GetMapping(path = "/comments")
+    public Collection<CommentDto> getComments(@RequestParam(required = false, defaultValue = "") String text,
+                                              @RequestParam(required = false) Set<Long> events,
+                                              @RequestParam(required = false) String rangeStart,
+                                              @RequestParam(required = false) String rangeEnd,
+                                              @Valid @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                              @Valid @Positive @RequestParam(defaultValue = "10") Integer size,
+                                              HttpServletRequest request) {
+        log.info("{}: Запрос к эндпоинту '{}' на получение списка комментариев",
+                request.getRemoteAddr(), request.getRequestURI());
+
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : null;
+
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : null;
+
+        return commentService.getComments(text, events, Status.CONFIRMED, start, end, from, size);
     }
 }

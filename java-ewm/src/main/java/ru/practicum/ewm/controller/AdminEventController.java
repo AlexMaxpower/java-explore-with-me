@@ -76,8 +76,13 @@ public class AdminEventController {
                                               HttpServletRequest request) {
         log.info("{}: Запрос к эндпоинту '{}' на получение списка событий",
                 request.getRemoteAddr(), request.getRequestURI());
-        return eventService.getEventsForAdmin(users, states, categories,
-                LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(dateTimeFormat)),
-                LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(dateTimeFormat)), from, size);
+
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now();
+
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd,
+                DateTimeFormatter.ofPattern(dateTimeFormat)) : LocalDateTime.now().plusYears(300);
+
+        return eventService.getEventsForAdmin(users, states, categories, start, end, from, size);
     }
 }

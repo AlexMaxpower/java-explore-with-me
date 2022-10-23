@@ -193,4 +193,3 @@ public class UserEventFacade {
         categoryService.delete(categoryId);
     }
 }
-

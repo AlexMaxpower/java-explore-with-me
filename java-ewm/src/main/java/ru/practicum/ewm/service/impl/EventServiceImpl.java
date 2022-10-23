@@ -261,9 +261,6 @@ public class EventServiceImpl implements EventService, Pager {
                                                   LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                   Boolean onlyAvailable, EventSort sort, Integer from, Integer size) {
 
-        rangeStart = (rangeStart != null) ? rangeStart : LocalDateTime.now();
-        rangeEnd = (rangeEnd != null) ? rangeEnd : LocalDateTime.now().plusYears(300);
-
         if (rangeStart.isAfter(rangeEnd)) {
             throw new NotValidException("Дата и время окончаний события не может быть раньше даты начала событий!");
         }
@@ -328,9 +325,6 @@ public class EventServiceImpl implements EventService, Pager {
     public List<EventFullDto> getEventsForAdmin(Set<Long> users, Set<State> states, Set<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                 Integer from, Integer size) {
-
-        rangeStart = (rangeStart != null) ? rangeStart : LocalDateTime.now();
-        rangeEnd = (rangeEnd != null) ? rangeEnd : LocalDateTime.now().plusYears(300);
 
         if (rangeStart.isAfter(rangeEnd)) {
             throw new NotValidException("Дата и время окончаний события не может быть раньше даты начала событий!");
