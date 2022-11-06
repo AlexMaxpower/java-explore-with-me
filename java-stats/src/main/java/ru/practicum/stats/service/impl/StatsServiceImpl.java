@@ -22,6 +22,7 @@ public class StatsServiceImpl implements StatsService {
 
     private final HitMapper mapper;
     private final HitRepository repository;
+
     public StatsServiceImpl(HitMapper hitMapper, HitRepository hitRepository) {
         this.mapper = hitMapper;
         this.repository = hitRepository;
