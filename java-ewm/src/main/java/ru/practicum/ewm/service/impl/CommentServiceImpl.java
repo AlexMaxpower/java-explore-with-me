@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.CommentDto;
 import ru.practicum.ewm.entity.Comment;
 import ru.practicum.ewm.exception.ForbiddenException;
@@ -29,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class CommentServiceImpl implements CommentService, Pager {
 
     private final CommentRepository repository;
@@ -43,6 +45,7 @@ public class CommentServiceImpl implements CommentService, Pager {
         this.entityManager = entityManager;
     }
 
+    @Transactional
     @Override
     public CommentDto createComment(Long userId, CommentDto commentDto) {
         commentDto.setCommentatorId(userId);
@@ -59,6 +62,7 @@ public class CommentServiceImpl implements CommentService, Pager {
         return mapper.commentToCommentDto(comment);
     }
 
+    @Transactional
     @Override
     public CommentDto updateComment(Long userId, Long commentId, CommentDto commentDto) {
         Comment comment = getComment(commentId);
@@ -84,6 +88,7 @@ public class CommentServiceImpl implements CommentService, Pager {
         return mapper.commentToCommentDto(comment);
     }
 
+    @Transactional
     @Override
     public CommentDto updateCommentByAdmin(Long commentId, CommentDto commentDto) {
         Comment comment = getComment(commentId);

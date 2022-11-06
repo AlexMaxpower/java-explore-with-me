@@ -2,6 +2,7 @@ package ru.practicum.ewm.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.ParticipationRequestDto;
 import ru.practicum.ewm.entity.Event;
 import ru.practicum.ewm.entity.ParticipationRequest;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository repository;
     private final RequestMapper mapper;
@@ -48,6 +50,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto createRequest(User user, Event event) {
 
 
@@ -76,6 +79,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto cancelRequest(User user, Long requestId) {
         ParticipationRequest participationRequest = repository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("ParticipationRequest with id=" + requestId + " not found."));
@@ -101,6 +105,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto confirmRequest(Event event, Long requestId) {
 
         ParticipationRequest participationRequest = repository.findById(requestId)
@@ -137,6 +142,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto rejectRequest(Event event, Long requestId) {
         ParticipationRequest participationRequest = repository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("ParticipationRequest with id=" + requestId + " not found."));
