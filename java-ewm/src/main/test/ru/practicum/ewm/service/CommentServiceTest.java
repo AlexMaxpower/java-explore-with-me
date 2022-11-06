@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.CommentDto;
@@ -36,7 +35,6 @@ public class CommentServiceTest {
             null, Status.PENDING);
 
     @Test
-    @Rollback
     void shouldCreateComment() {
         CommentDto resultCommentDto = commentService.createComment(1001L, commentDto);
         assertThat(resultCommentDto.getText(), equalTo(commentDto.getText()));
@@ -47,7 +45,6 @@ public class CommentServiceTest {
     }
 
     @Test
-    @Rollback
     void shouldReturnCommentsByUserId() {
         CommentDto commentDto1 = commentService.createComment(1001L, commentDto);
         CommentDto commentDto2 = commentService.createComment(1002L, commentDto);
@@ -61,7 +58,6 @@ public class CommentServiceTest {
     }
 
     @Test
-    @Rollback
     void shouldConfirmedCommentByAdmin() {
         CommentDto commentDto1 = commentService.createComment(1001L, commentDto);
         CommentDto updateCommentDto = new CommentDto(null, null, null, null,
@@ -76,7 +72,6 @@ public class CommentServiceTest {
     }
 
     @Test
-    @Rollback
     void shouldRejectedCommentByAdmin() {
         CommentDto commentDto1 = commentService.createComment(1001L, commentDto);
         CommentDto updateCommentDto = new CommentDto(null, null, null, null,
@@ -91,7 +86,6 @@ public class CommentServiceTest {
     }
 
     @Test
-    @Rollback
     void shouldExceptionWhenGetNotExistUser() {
 
         NotFoundException exp = assertThrows(NotFoundException.class,
@@ -100,7 +94,6 @@ public class CommentServiceTest {
     }
 
     @Test
-    @Rollback
     void shouldReturnOnlyConfirmedComments() {
         CommentDto commentDto1 = commentService.createComment(1001L, commentDto);
         CommentDto commentDto2 = commentService.createComment(1002L, commentDto);
@@ -146,7 +139,6 @@ public class CommentServiceTest {
     }
 
     @Test
-    @Rollback
     void shouldExceptionWhenNoComment() {
         CommentDto commentToUpdateDto = commentService.createComment(1001L, commentDto);
         commentToUpdateDto.setText("1");

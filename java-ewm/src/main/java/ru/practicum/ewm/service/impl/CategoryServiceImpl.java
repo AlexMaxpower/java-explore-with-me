@@ -6,6 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.CategoryDto;
 import ru.practicum.ewm.entity.Category;
 import ru.practicum.ewm.exception.AlreadyExistsException;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService, Pager {
 
     private final CategoryRepository repository;
@@ -32,6 +34,7 @@ public class CategoryServiceImpl implements CategoryService, Pager {
     }
 
     @Override
+    @Transactional
     public CategoryDto create(CategoryDto categoryDto) {
         try {
             Category category = repository.save(mapper.categoryDtoToCategory(categoryDto));
@@ -44,6 +47,7 @@ public class CategoryServiceImpl implements CategoryService, Pager {
     }
 
     @Override
+    @Transactional
     public CategoryDto update(CategoryDto categoryDto) {
         Category category = getCategory(categoryDto.getId());
         log.info("Обновляем категорию: {}", category.toString());
@@ -56,6 +60,7 @@ public class CategoryServiceImpl implements CategoryService, Pager {
     }
 
     @Override
+    @Transactional
     public void delete(Long categoryId) {
         CategoryDto categoryDto = getCategoryById(categoryId);
         repository.deleteById(categoryId);

@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.UserDto;
 import ru.practicum.ewm.entity.User;
 import ru.practicum.ewm.exception.AlreadyExistsException;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import static java.util.stream.Collectors.toList;
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService, Pager {
     private final UserRepository repository;
     private final UserMapper mapper;
@@ -46,6 +48,7 @@ public class UserServiceImpl implements UserService, Pager {
     }
 
     @Override
+    @Transactional
     public UserDto create(UserDto userDto) {
         try {
             return mapper.userToUserDto(repository.save(mapper.userDtoToUser(userDto)));
@@ -56,6 +59,7 @@ public class UserServiceImpl implements UserService, Pager {
     }
 
     @Override
+    @Transactional
     public UserDto update(UserDto userDto, Long id) {
         if (userDto.getId() == null) {
             userDto.setId(id);
@@ -80,6 +84,7 @@ public class UserServiceImpl implements UserService, Pager {
     }
 
     @Override
+    @Transactional
     public void delete(Long userId) {
         try {
             repository.deleteById(userId);

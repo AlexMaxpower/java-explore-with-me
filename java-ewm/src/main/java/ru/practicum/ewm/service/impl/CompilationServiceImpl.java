@@ -7,6 +7,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.CompilationDto;
 import ru.practicum.ewm.dto.NewCompilationDto;
 import ru.practicum.ewm.entity.Compilation;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService, Pager {
     private final CompilationRepository repository;
     private final CompilationMapper mapper;
@@ -33,6 +35,7 @@ public class CompilationServiceImpl implements CompilationService, Pager {
         this.mapper = compilationMapper;
     }
 
+    @Transactional
     @Override
     public CompilationDto create(NewCompilationDto newCompilationDto) {
         try {
@@ -48,6 +51,7 @@ public class CompilationServiceImpl implements CompilationService, Pager {
         }
     }
 
+    @Transactional
     @Override
     public CompilationDto pinUnpin(Long compId, boolean pin) {
         Compilation compilation = repository.findById(compId)
@@ -56,6 +60,7 @@ public class CompilationServiceImpl implements CompilationService, Pager {
         return mapper.compilationToCompilationDto(repository.save(compilation));
     }
 
+    @Transactional
     @Override
     public void delete(Long compId) {
         try {
@@ -65,6 +70,7 @@ public class CompilationServiceImpl implements CompilationService, Pager {
         }
     }
 
+    @Transactional
     @Override
     public void deleteEvent(Long compId, Event event) {
         Compilation compilation = repository.findById(compId)
@@ -73,6 +79,7 @@ public class CompilationServiceImpl implements CompilationService, Pager {
         repository.save(compilation);
     }
 
+    @Transactional
     @Override
     public CompilationDto addEvent(Long compId, Event event) {
         Compilation compilation = repository.findById(compId)

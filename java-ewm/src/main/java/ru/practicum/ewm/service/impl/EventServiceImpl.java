@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.EventCreateDto;
 import ru.practicum.ewm.dto.EventFullDto;
 import ru.practicum.ewm.dto.EventShortDto;
@@ -32,11 +33,11 @@ import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class EventServiceImpl implements EventService, Pager {
 
     private final EventRepository repository;
     private final EventMapper mapper;
-
     private final EntityManager entityManager;
 
     @Autowired
@@ -47,8 +48,8 @@ public class EventServiceImpl implements EventService, Pager {
         this.entityManager = entityManager;
     }
 
-
     @Override
+    @Transactional
     public EventFullDto create(EventCreateDto eventCreateDto) {
         if (eventCreateDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new NotValidException("Дата и время события не могут быть раньше, чем через два" +
@@ -59,6 +60,7 @@ public class EventServiceImpl implements EventService, Pager {
     }
 
     @Override
+    @Transactional
     public EventFullDto cancel(Long eventId, Long userId) {
         Event event = getEvent(eventId);
 
@@ -77,6 +79,7 @@ public class EventServiceImpl implements EventService, Pager {
     }
 
     @Override
+    @Transactional
     public EventFullDto publish(Long eventId) {
         Event event = getEvent(eventId);
 
@@ -96,6 +99,7 @@ public class EventServiceImpl implements EventService, Pager {
     }
 
     @Override
+    @Transactional
     public EventFullDto reject(Long eventId) {
         Event event = getEvent(eventId);
 
@@ -112,8 +116,6 @@ public class EventServiceImpl implements EventService, Pager {
     public EventFullDto getEventByIdForPublic(Long eventId) {
         Event event = getEvent((eventId));
 
-        // отправить запрос на сервер статистики
-
         if (!State.PUBLISHED.equals(event.getState())) {
             throw new ForbiddenException("Event not published.");
         }
@@ -123,8 +125,6 @@ public class EventServiceImpl implements EventService, Pager {
     @Override
     public EventShortDto getEventShortDtoByIdForPublic(Long eventId) {
         Event event = getEvent(eventId);
-
-        // отправить запрос на сервер статистики
 
         if (!State.PUBLISHED.equals(event.getState())) {
             throw new ForbiddenException("Event not published.");
@@ -158,6 +158,7 @@ public class EventServiceImpl implements EventService, Pager {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEvent(Long userId, UpdateEventRequest updateEventRequest, Category category) {
 
         Event event = getEvent(updateEventRequest.getEventId());
@@ -209,6 +210,7 @@ public class EventServiceImpl implements EventService, Pager {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByAdmin(Long eventId, AdminUpdateEventRequest adminUpdateEventRequest,
                                            Category category) {
 
@@ -318,7 +320,6 @@ public class EventServiceImpl implements EventService, Pager {
                     .limit(size)
                     .collect(toList());
         }
-
         return eventShortDtos;
     }
 
