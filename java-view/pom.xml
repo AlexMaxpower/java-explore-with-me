@@ -135,7 +135,49 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>23.2.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <nodeAutoUpdate>true</nodeAutoUpdate>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>production</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.vaadin</groupId>
+                        <artifactId>vaadin-maven-plugin</artifactId>
+                        <version>23.2.10</version>
+                        <executions>
+                            <execution>
+                                <id>frontend</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>prepare-frontend</goal>
+                                    <goal>build-frontend</goal>
+                                </goals>
+                                <configuration>
+                                    <productionMode>true</productionMode>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

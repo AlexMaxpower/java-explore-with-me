@@ -41,3 +41,13 @@ services:
       - POSTGRES_DB=ewm-db
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+
+  ewm-view:
+    build: java-view
+    container_name: ewm-view
+    ports:
+      - "8081:8081"
+    depends_on:
+      - ewm-service
+    environment:
+      - FEIGN_URL=http://ewm-service:8080
