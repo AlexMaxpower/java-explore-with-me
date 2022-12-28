@@ -3,6 +3,7 @@ package ru.practicum.ewm.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import ru.practicum.ewm.storage.UserRepository;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -36,7 +38,14 @@ public class UserServiceImpl implements UserService, Pager {
     @Override
     public Collection<UserDto> getUsers(Long[] ids, Integer from, Integer size) {
         Pageable page = getPage(from, size, "id", Sort.Direction.ASC);
-        return repository.findByIdIsIn(Arrays.asList(ids), page).stream()
+        List<User> users;
+        if (ids != null) {
+            users = repository.findByIdIsIn(Arrays.asList(ids), page);
+        } else {
+            users = repository.findAll(page).stream()
+                    .collect(toList());
+        }
+        return users.stream()
                 .map(mapper::userToUserDto)
                 .collect(toList());
     }

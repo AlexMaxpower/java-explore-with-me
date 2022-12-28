@@ -21,7 +21,8 @@
 	<modules>
 		<module>java-ewm</module>
 		<module>java-stats</module>
-	</modules>
+        <module>java-view</module>
+    </modules>
 
 	<groupId>ru.practicum</groupId>
 	<artifactId>explore-with-me</artifactId>

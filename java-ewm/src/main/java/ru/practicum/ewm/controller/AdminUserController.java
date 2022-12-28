@@ -28,7 +28,7 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public Collection<UserDto> getUsers(@RequestParam Long[] ids,
+    public Collection<UserDto> getUsers(@RequestParam(value = "ids", required = false) Long[] ids,
                                         @Valid @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                         @Valid @Positive @RequestParam(defaultValue = "10") Integer size,
                                         HttpServletRequest request) {
@@ -45,6 +45,16 @@ public class AdminUserController {
                 request.getRequestURI(),
                 newUserRequest.toString());
         return userService.create(userMapper.newUserRequestToUserDto(newUserRequest));
+    }
+
+    @PutMapping("/{userId}")
+    public UserDto update(@PathVariable Long userId, @Valid @RequestBody NewUserRequest newUserRequest,
+                          HttpServletRequest request) {
+        log.info("{}: Запрос к эндпоинту '{}' на обновление пользователя {}",
+                request.getRemoteAddr(),
+                request.getRequestURI(),
+                newUserRequest.toString());
+        return userService.update(userMapper.newUserRequestToUserDto(newUserRequest), userId);
     }
 
     @DeleteMapping("/{userId}")
